@@ -3,6 +3,8 @@ Adapted from https://github.com/CalyxOS/platform_prebuilts_calyx_microg
 Changes Made: 
 
 - worked into Android-Generic Project 
+- added patches required
+- created this README.md
 
 Clone into vendor/prebuilts/microg
 
