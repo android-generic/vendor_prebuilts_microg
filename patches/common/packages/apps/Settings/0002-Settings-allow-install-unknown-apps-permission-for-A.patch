@@ -1,0 +1,48 @@
+From 291d5fe6600736ae48062b326026508d398c9e1b Mon Sep 17 00:00:00 2001
+From: althafvly <althafvly@gmail.com>
+Date: Sun, 23 May 2021 15:55:45 +0200
+Subject: [PATCH 2/2] Settings: allow install unknown apps permission for
+ Aurora Store
+
+Conflicts:
+	src/com/android/settings/SettingsInitialize.java
+---
+ src/com/android/settings/SettingsInitialize.java | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/src/com/android/settings/SettingsInitialize.java b/src/com/android/settings/SettingsInitialize.java
+index 2e86963113..a92a206f71 100644
+--- a/src/com/android/settings/SettingsInitialize.java
++++ b/src/com/android/settings/SettingsInitialize.java
+@@ -56,6 +56,7 @@ public class SettingsInitialize extends BroadcastReceiver {
+             "com.android.settings.PRIMARY_PROFILE_CONTROLLED";
+     private static final String WEBVIEW_IMPLEMENTATION_ACTIVITY = ".WebViewImplementation";
+     private AppOpsManager mAppOpsManager;
++    private static final String packageList[] = {"com.aurora.adroid", "com.aurora.store"};
+ 
+     @Override
+     public void onReceive(Context context, Intent broadcast) {
+@@ -63,12 +64,14 @@ public class SettingsInitialize extends BroadcastReceiver {
+         final UserManager um = (UserManager) context.getSystemService(Context.USER_SERVICE);
+         UserInfo userInfo = um.getUserInfo(UserHandle.myUserId());
+         final PackageManager pm = context.getPackageManager();
+-        try {
+-            int mUid = pm.getApplicationInfo("com.aurora.adroid", 0).uid;
+-            mAppOpsManager.setMode(AppOpsManager.OP_REQUEST_INSTALL_PACKAGES, mUid, "com.aurora.adroid", AppOpsManager.MODE_ALLOWED);
+-        }
+-        catch(Exception e) {
+-           e.printStackTrace();
++        for (String packageName: packageList) {
++            try {
++                int mUid = pm.getApplicationInfo(packageName, 0).uid;
++                mAppOpsManager.setMode(AppOpsManager.OP_REQUEST_INSTALL_PACKAGES, mUid, packageName, AppOpsManager.MODE_ALLOWED);
++            }
++            catch(Exception e) {
++               e.printStackTrace();
++            }
+         }
+         managedProfileSetup(context, pm, broadcast, userInfo);
+         webviewSettingSetup(context, pm, userInfo);
+-- 
+2.20.1
+

@@ -1,0 +1,47 @@
+From 60c1ff12a0041f447beb5671fa4c0b29df87edd2 Mon Sep 17 00:00:00 2001
+From: althafvly <althafvly@gmail.com>
+Date: Tue, 18 May 2021 08:10:18 +0000
+Subject: [PATCH 1/2] Settings: allow install unknown apps permission for
+ Aurora Droid
+
+---
+ src/com/android/settings/SettingsInitialize.java | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/src/com/android/settings/SettingsInitialize.java b/src/com/android/settings/SettingsInitialize.java
+index 515703358e..2e86963113 100644
+--- a/src/com/android/settings/SettingsInitialize.java
++++ b/src/com/android/settings/SettingsInitialize.java
+@@ -23,6 +23,7 @@ import static android.content.pm.PackageManager.MATCH_DISABLED_COMPONENTS;
+ 
+ import static com.android.settings.Utils.SETTINGS_PACKAGE_NAME;
+ 
++import android.app.AppOpsManager;
+ import android.content.BroadcastReceiver;
+ import android.content.ComponentName;
+ import android.content.Context;
+@@ -54,12 +55,21 @@ public class SettingsInitialize extends BroadcastReceiver {
+     private static final String PRIMARY_PROFILE_SETTING =
+             "com.android.settings.PRIMARY_PROFILE_CONTROLLED";
+     private static final String WEBVIEW_IMPLEMENTATION_ACTIVITY = ".WebViewImplementation";
++    private AppOpsManager mAppOpsManager;
+ 
+     @Override
+     public void onReceive(Context context, Intent broadcast) {
++        mAppOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+         final UserManager um = (UserManager) context.getSystemService(Context.USER_SERVICE);
+         UserInfo userInfo = um.getUserInfo(UserHandle.myUserId());
+         final PackageManager pm = context.getPackageManager();
++        try {
++            int mUid = pm.getApplicationInfo("com.aurora.adroid", 0).uid;
++            mAppOpsManager.setMode(AppOpsManager.OP_REQUEST_INSTALL_PACKAGES, mUid, "com.aurora.adroid", AppOpsManager.MODE_ALLOWED);
++        }
++        catch(Exception e) {
++           e.printStackTrace();
++        }
+         managedProfileSetup(context, pm, broadcast, userInfo);
+         webviewSettingSetup(context, pm, userInfo);
+         refreshExistingShortcuts(context);
+-- 
+2.20.1
+
